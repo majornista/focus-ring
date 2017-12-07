@@ -285,6 +285,7 @@ function init() {
         'checkbox': true,
         'columnheading': true,
         'gridcell': true,
+	'menuitem': true,
         'menuitemcheckbox': true,
         'menuitemradio': true,
         'option': true,
