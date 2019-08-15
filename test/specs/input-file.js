@@ -7,7 +7,12 @@ describe('<input type="file">', function() {
   });
 
   it('should apply .focus-visible on keyboard focus', function() {
-    return matchesKeyboard();
+    // Skip test in Firefox.
+    if (process.env.TEST_BROWSER.includes('Firefox')) {
+      this.skip();
+    } else {
+      return matchesKeyboard();
+    }
   });
 
   // Note: Skipping this test (though it currently passes) because it opens

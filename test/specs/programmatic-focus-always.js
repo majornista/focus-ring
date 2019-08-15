@@ -32,6 +32,10 @@ describe('programmatic focus on element that should always match focus-visible',
     let actual = await driver.executeScript(`
       return window.getComputedStyle(document.querySelector('#el')).outlineColor
     `);
-    expect(actual).toEqual(FOCUS_RING_STYLE);
+    if (process.env.TEST_BROWSER.includes('Internet Explorer')) {
+      expect(actual).toEqual(FOCUS_RING_STYLE);
+    } else {
+      expect(actual).toNotEqual(FOCUS_RING_STYLE);
+    }
   });
 });

@@ -1,8 +1,9 @@
 {
-  "name": "focus-visible",
-  "version": "5.0.2",
+  "name": "@adobe/focus-ring-polyfill",
+  "version": "0.1.6",
   "description": "Polyfill for :focus-visible pseudo-selector",
   "scripts": {
+    "install": "npm install . && npm run build",
     "build": "rollup -c",
     "precommit": "lint-staged",
     "prepublishOnly": "npm run test",
@@ -21,16 +22,22 @@
     ]
   },
   "main": "dist/focus-visible.js",
+  "keywords": [
+    "css",
+    "polyfill",
+    "focus-visible",
+    "focus-ring"
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/WICG/focus-visible.git"
+    "url": "git@github.com:majornista/focus-visible.git"
   },
   "author": "WICG",
   "license": "W3C",
   "bugs": {
-    "url": "https://github.com/WICG/focus-visible/issues"
+    "url": "https://github.com/majornista/focus-visible/issues"
   },
-  "homepage": "https://github.com/WICG/focus-visible",
+  "homepage": "https://github.com/majornista/focus-visible",
   "devDependencies": {
     "@webcomponents/webcomponentsjs": "^2.2.10",
     "ajv": "^6.0.0",

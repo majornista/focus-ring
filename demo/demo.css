@@ -26,6 +26,16 @@ select {
   width: 10em;
 }
 
-.js-focus-visible :focus:not(.focus-visible) {
-  outline: 0;
+.js-focus-visible :focus:not(.focus-visible),
+.js-focus-ring :focus:not(.focus-ring) {
+  outline-width: 0;
+}
+
+.js-focus-visible
+  input:focus:not(.focus-visible):not([type='radio']):not([type='checkbox']):not([type='range']),
+.js-focus-ring
+  input:focus:not(.focus-ring):not([type='radio']):not([type='checkbox']):not([type='range']),
+.js-focus-visible textarea:focus:not(.focus-visible),
+.js-focus-ring textarea:focus:not(.focus-ring) {
+  outline-width: 1px;
 }

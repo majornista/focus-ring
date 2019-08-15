@@ -1,11 +1,34 @@
 /**
  * Applies the :focus-visible polyfill at the given scope.
  * A scope in this case is either the top-level Document or a Shadow Root.
+ * A focusVisibleClass is an optional className used to indicate :focus-visible pseudo-selector state, defaulting to `focus-visible`.
+ * A navigationKeysWhitelist is an object containing boolean flags for the KeyboardEvent.key values that are used for navigation.
+ * If omitted, all keyboard events except for those modified with altKey, ctrlKey or metaKey, will be treated as navigation events.
  *
  * @param {(Document|ShadowRoot)} scope
+ * @param {String} focusVisibleClass
+ * @param {Object} navigationKeysWhitelist
  * @see https://github.com/WICG/focus-visible
  */
-function applyFocusVisiblePolyfill(scope) {
+function applyFocusVisiblePolyfill(
+  scope,
+  focusVisibleClass,
+  navigationKeysWhitelist
+) {
+  if (focusVisibleClass) {
+    applyFocusVisiblePolyfill.focusVisibleClass = focusVisibleClass;
+  } else if (!applyFocusVisiblePolyfill.focusVisibleClass) {
+    applyFocusVisiblePolyfill.focusVisibleClass = 'focus-visible';
+  }
+
+  focusVisibleClass = applyFocusVisiblePolyfill.focusVisibleClass;
+
+  if (navigationKeysWhitelist) {
+    applyFocusVisiblePolyfill.navigationKeysWhitelist = navigationKeysWhitelist;
+  }
+
+  navigationKeysWhitelist = applyFocusVisiblePolyfill.navigationKeysWhitelist;
+
   var hadKeyboardEvent = true;
   var hadFocusVisibleRecently = false;
   var hadFocusVisibleRecentlyTimeout = null;
@@ -56,12 +79,14 @@ function applyFocusVisiblePolyfill(scope) {
     var type = el.type;
     var tagName = el.tagName;
 
-    if (tagName === 'INPUT' && inputTypesWhitelist[type] && !el.readOnly) {
-      return true;
-    }
+    if (hadKeyboardEvent) {
+      if (tagName === 'INPUT' && inputTypesWhitelist[type] && !el.readOnly) {
+        return true;
+      }
 
-    if (tagName === 'TEXTAREA' && !el.readOnly) {
-      return true;
+      if (tagName === 'TEXTAREA' && !el.readOnly) {
+        return true;
+      }
     }
 
     if (el.isContentEditable) {
@@ -77,11 +102,11 @@ function applyFocusVisiblePolyfill(scope) {
    * @param {Element} el
    */
   function addFocusVisibleClass(el) {
-    if (el.classList.contains('focus-visible')) {
+    if (el.classList.contains(focusVisibleClass)) {
       return;
     }
-    el.classList.add('focus-visible');
-    el.setAttribute('data-focus-visible-added', '');
+    el.classList.add(focusVisibleClass);
+    el.setAttribute('data-' + focusVisibleClass + '-added', '');
   }
 
   /**
@@ -90,11 +115,11 @@ function applyFocusVisiblePolyfill(scope) {
    * @param {Element} el
    */
   function removeFocusVisibleClass(el) {
-    if (!el.hasAttribute('data-focus-visible-added')) {
+    if (!el.hasAttribute('data-' + focusVisibleClass + '-added')) {
       return;
     }
-    el.classList.remove('focus-visible');
-    el.removeAttribute('data-focus-visible-added');
+    el.classList.remove(focusVisibleClass);
+    el.removeAttribute('data-' + focusVisibleClass + '-added');
   }
 
   /**
@@ -106,7 +131,12 @@ function applyFocusVisiblePolyfill(scope) {
    * @param {KeyboardEvent} e
    */
   function onKeyDown(e) {
-    if (e.metaKey || e.altKey || e.ctrlKey) {
+    if (
+      e.metaKey ||
+      e.altKey ||
+      e.ctrlKey ||
+      (navigationKeysWhitelist && !navigationKeysWhitelist[e.key])
+    ) {
       return;
     }
 
@@ -142,7 +172,7 @@ function applyFocusVisiblePolyfill(scope) {
       return;
     }
 
-    if (hadKeyboardEvent || focusTriggersKeyboardModality(e.target)) {
+    if (hadKeyboardEvent || focusTriggersKeyboardModality(e.target, e.type)) {
       addFocusVisibleClass(e.target);
     }
   }
@@ -157,8 +187,8 @@ function applyFocusVisiblePolyfill(scope) {
     }
 
     if (
-      e.target.classList.contains('focus-visible') ||
-      e.target.hasAttribute('data-focus-visible-added')
+      e.target.classList.contains(focusVisibleClass) ||
+      e.target.hasAttribute('data-' + focusVisibleClass + '-added')
     ) {
       // To detect a tab/window switch, we look for a blur event followed
       // rapidly by a visibility change.
@@ -266,9 +296,9 @@ function applyFocusVisiblePolyfill(scope) {
     // Since a ShadowRoot is a special kind of DocumentFragment, it does not
     // have a root element to add a class to. So, we add this attribute to the
     // host element instead:
-    scope.host.setAttribute('data-js-focus-visible', '');
+    scope.host.setAttribute('data-js-' + focusVisibleClass, '');
   } else if (scope.nodeType === Node.DOCUMENT_NODE) {
-    document.documentElement.classList.add('js-focus-visible');
+    document.documentElement.classList.add('js-' + focusVisibleClass);
   }
 }
 
@@ -297,6 +327,33 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 }
 
 if (typeof document !== 'undefined') {
+  // Override the default focusVisibleClass with .focus-ring for the time being.
+  applyFocusVisiblePolyfill.focusVisibleClass = 'focus-ring';
+
+  // Supply a whitelist of event.key props to be considered navigation keys.
+  applyFocusVisiblePolyfill.navigationKeysWhitelist = {
+    Tab: true,
+    ArrowUp: true,
+    ArrowRight: true,
+    ArrowDown: true,
+    ArrowLeft: true,
+    Home: true,
+    End: true,
+    PageUp: true,
+    PageDown: true,
+    Enter: true,
+    ' ': true,
+    Escape: true,
+    F6: true,
+
+    // IE9 and Firefox < 37
+    Up: true,
+    Right: true,
+    Down: true,
+    Left: true,
+    Esc: true
+  };
+
   // Apply the polyfill to the global document, so that no JavaScript
   // coordination is required to use the polyfill in the top-level document:
   applyFocusVisiblePolyfill(document);

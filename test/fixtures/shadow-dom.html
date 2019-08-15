@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <style>
-      .js-focus-visible :focus:not(.focus-visible) {
+      .js-focus-visible :focus:not(.focus-visible), .js-focus-ring :focus:not(.focus-ring) {
+
         outline: none;
       }
-      .focus-visible {
+      .focus-visible, .focus-ring {
         outline: 2px solid red;
       }
     </style>
@@ -28,7 +29,7 @@
         :host([data-js-focus-visible]) :focus:not(.focus-visible) {
           outline: none;
         }
-        .focus-visible {
+        .focus-visible, .focus-ring {
           outline: 2px solid red;
         }
       </style>

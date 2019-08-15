@@ -18,7 +18,7 @@ describe('keydown should always update focus-visible', function() {
     let el = await driver.findElement(By.css('#el'));
     await body.click();
     await el.click();
-    await el.sendKeys(Key.SHIFT);
+    await el.sendKeys(Key.ESCAPE);
     let actual = await driver.executeScript(`
       return window.getComputedStyle(document.querySelector('#el')).outlineColor
     `);

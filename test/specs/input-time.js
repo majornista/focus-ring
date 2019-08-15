@@ -13,8 +13,10 @@ describe('<input type="time">', function() {
     // Skip test in Microsoft Edge. It displays a modal UI on mouse click.
     if (process.env.TEST_BROWSER.includes('Edge')) {
       this.skip();
-    } else {
+    } else if (process.env.TEST_BROWSER.includes('Internet Explorer')) {
       return matchesMouse();
+    } else {
+      return matchesMouse(false);
     }
   });
 });

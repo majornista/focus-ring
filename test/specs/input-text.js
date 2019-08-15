@@ -10,6 +10,10 @@ describe('<input type="text">', function() {
   });
 
   it('should apply .focus-visible on mouse focus', function() {
-    return matchesMouse();
+    if (process.env.TEST_BROWSER.includes('Internet Explorer')) {
+      return matchesMouse();
+    } else {
+      return matchesMouse(false);
+    }
   });
 });
